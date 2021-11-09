@@ -17,195 +17,177 @@
 	</style>
 	<script src="js/jquery-3.6.0.min.js"></script>
     <script src="js/functions.js"></script>
+    <script src="js/roadpaver.js"></script>
+    <script src="js/scene.js"></script>
 </head>
 <body>
     <div class="container">
         <canvas id="canvas" width="1000" height="500"></canvas>
         <button id="action">行动模式</button>
         <button id="go">开始</button>
+        <button id="move">移动</button>
     </div>
 	
 	<!-- <div id="app"><img src="images/birth.png" alt=""></div> -->
 	<script type="text/javascript">
-		
-		function RoadPaver(){
-            this.img = getImg('images/route.png')
-			// this.roadlist = []
-			this.canvas = document.getElementById('canvas')
-			this.ctx = this.canvas.getContext('2d')
-            var container = document.getElementsByClassName('container')[0]
 
-			this.buildroad = function(){
-				var that = this
-                var temparr = []
-				this.canvas.onmousedown = function(e){
-                    console.log(container.offsetLeft)
-					that.canvas.onmousemove = (e)=>{
-						var disX = Math.floor((e.pageX-container.offsetLeft)/50)*50
-						var disY = Math.floor((e.pageY-container.offsetTop)/50)*50						
-						var newroad = {x:disX,y:disY}
-                        if(!isIn(roadlist,newroad) && !isIn(temparr,newroad) && !isIn(alreadySet,newroad)){
-							temparr.push(newroad)
-						} 
-                        
-                        // 画虚拟路径
-                        clear(that.ctx,temparr)                        
-                        draw(that.ctx,temparr,that.img,0.2)  				
-                        
-                        // 画布外释放
-                        that.canvas.onmouseout = (e) => {
-                            document.onmouseup = (e) => {
-                                clear(that.ctx,temparr)
-                                temparr = []
-                                that.canvas.onmouseout = null
-                                that.canvas.onmousemove = null
-                                document.onmouseup = null
-                                // console.log('aaa')
-                            }
-                        }                      
-
-                        // 画布内释放
-						that.canvas.onmouseup = (e)=>{
-                            roadlist = roadlist.concat(temparr)                        
-                            draw(that.ctx,roadlist,that.img,1)
-                            temparr = []                            
-							that.canvas.onmousemove = null
-							console.log(roadlist)
-						}
-					}			
-				}			
-			}
-
-        }
-
-
-
-        function Scene(){
-            this.canvas = document.getElementById('canvas')
-			this.ctx = this.canvas.getContext('2d')    
-            var alreadyIn = []                    
-
-            this.setBuild = function(build,level){
-                var that = this
-                if(level == 'easy'){
-                    if(build === birth){
-                        this.buildXY(build)
-                    }else{
-                        this.buildXY(build)
-                    }                    
-                } 
-                if(level == 'normal'){
-                    if(build === birth){
-                        this.buildXY(build)
-                        this.buildXY(build)
-                    }else{
-                        this.buildXY(build)
-                    }                    
-                } 
-                if(level === 'hard'){
-                    if(build === birth){
-                        this.buildXY(build)
-                        this.buildXY(build)
-                        this.buildXY(build)
-                    }else{
-                        this.buildXY(build)
-                        this.buildXY(build)
-                    }
-                    
-                }                 
-                
-                build.img = getImg(build.img)                
-                build.img.onload = function(){
-                    draw(that.ctx,build.position,build.img,1)                   
-                }
-                
-            }
-
-            this.buildXY = function(build){
-                for(var i=0;i<500;i++){
-                    var ex = Math.floor(Math.random()*20)*50
-                    var ey = Math.floor(Math.random()*9)*50 
-                    if(!isInclude(alreadyIn,{x:ex,y:ey})){                        
-                        build.position.push({x:ex,y:ey}) 
-                        alreadyIn = alreadyIn.concat(build.position) 
-                        break                      
-                    }                    
-                }                 
-            }
-
-            // 画网格
-            this.setCell = function(){
-                for(var i=0;i<10;i++){
-                    this.ctx.lineWidth = 1
-                    this.ctx.strokeStyle = '#ddd'
-                    this.ctx.moveTo(0,i*50);
-                    this. ctx.lineTo(1000,i*50);
-                    this.ctx.stroke()
-                }    
-                for(var i=0;i<20;i++){
-                    this.ctx.lineWidth = 0.5
-                    this.ctx.moveTo(i*50,0);
-                    this. ctx.lineTo(i*50,500);
-                    this.ctx.stroke()
-                }              
-            }
-        }     
-		
         // 市民
         function Person(){
-            this.img = 
-            this.target =            
+            this.canvas = document.getElementById('canvas')
+			this.ctx = this.canvas.getContext('2d')    
+            this.img = getImg('images/nav.png')
+            this.target = ''           
             this.position = {}
             this.road = []
+            this.direct = 'down'
+            this.timer = []
 
-            this.getRoad = function(){                
-                if(hasDown(this.position) && !isIn(this.road,this.position)){
-                    this.road.push(this.position)
+            this.getTarget = function(){
+                var ran = Math.floor(Math.random()*3)
+                var arr = ['sun','moon','star'];
+                this.target = arr[ran]
+            }
+
+            this.getRoad = function(){   
+
+                if(hasDown(this.position) && this.direct == 'down'){
+                    this.position.y = this.position.y + 50  
+                    var newobj = JSON.parse(JSON.stringify(this.position)) 
+                    this.road.push(newobj)  
+                    // if(!isCross(this.position) && hasLeft(this.position)){
+                    if(hasLeft(this.position)){
+                        this.direct = 'left'
+                    }else if(hasRight(this.position)){
+                        this.direct = 'right'
+                    }
+                    // if(isCross(this.position)){
+                    //     var ran = Math.floor(Math.random()*4)
+                    //     var arr = ['down','up','left','rigth'];
+                    //     this.direct = arr[ran]
+                    // }
+                    // console.log('down')
+
+                }else if(hasUp(this.position)  && this.direct == 'up'){
+                    this.position.y = this.position.y - 50 
+                    var newobj = JSON.parse(JSON.stringify(this.position))                
+                    this.road.push(newobj)                 
+                    if(hasRight(this.position)){
+                        this.direct = 'right'
+                    }else if(hasLeft(this.position)){
+                        this.direct = 'left'
+                    }
+                    // console.log('up')
+                }else if(hasLeft(this.position)  && this.direct == 'left'){                    
+                        this.position.x = this.position.x - 50
+                        var newobj = JSON.parse(JSON.stringify(this.position))                
+                        this.road.push(newobj)                 
+                        if(hasUp(this.position)){
+                            this.direct = 'up'
+                        }else if(hasDown(this.position)){
+                            this.direct = 'down'
+                        }
+                        // console.log('left')
+                }else if(hasRight(this.position)  && this.direct == 'right'){                    
+                        this.position.x = this.position.x + 50
+                        var newobj = JSON.parse(JSON.stringify(this.position))                
+                        this.road.push(newobj)  
+                        if(hasDown(this.position)){
+                            this.direct = 'down'
+                        }else if(hasUp(this.position)){
+                            this.direct = 'up'
+                        }                        
+                        // console.log('right')
                 }
-                if(hasUp(this.position)  && !isIn(this.road,this.position)){
-                    this.road.push(this.position)
+                // if(this.road[this.road.length-1])
+                // console.log(this.road)
+                // console.log(this.position)
+                // console.log(building[this.target].position[0])
+                var targetbuild = building[this.target].position[0]
+                // console.log(targetbuild.x,targetbuild.y,this.position.x,this.position.y)
+
+                if(targetbuild.x == this.road[this.road.length-1].x && targetbuild.y == this.road[this.road.length-1].y-50){
+                    // console.log(this.road)
+                    this.timer.forEach(function(item){
+                        clearInterval(item)                        
+                    })
                 }
-                if(hasLeft(this.position) && !isIn(this.road,this.position)){
-                    this.road.push(this.position)
+            }
+
+            this.test = function(){
+                this.position.x = this.position.x +50
+                var ex = this.position.x
+                var ey = this.position.y + 50
+                var newposition = {x:ex,y:ey}
+            }
+            this.move = function(){
+                var that = this                
+                var routeImg = getImg(building.route.img)
+                var i = 0 
+                this.timer.push(setInterval(() => {
+                    that.getRoad()
+                    // that.getRoad()
+                    // console.log(that.road[i].x,that.road[i].y)
+                    that.ctx.drawImage(that.img,that.road[i].x,that.road[i].y,48,48)
+                    // // console.log(that.road[i].y)
+                    if(i>=1){
+                        that.ctx.drawImage(routeImg,that.road[i-1].x,that.road[i-1].y,48,48)
+                    }
+                    i++
+                    // console.log(scene.alreadyIn)
+                    // console.log(that.target)
+                    that.arrive()
+                }, 30))
+            }
+
+            this.arrive = function(){
+                var routeImg = getImg(building.route.img)
+                if(this.position.x == building[this.target].position[0].x && this.position.y-50 == building[this.target].position[0].y){
+                    // alert('ok')
+                    setTimeout(() => {
+                         this.ctx.drawImage(routeImg,this.position.x,this.position.y,48,48)                        
+                    }, 1000);
                 }
-                if(hasRight(this.position)) && !isIn(this.road,this.position)){
-                    this.road.push(this.position)
-                }
-                console.log(this.road)
+                // console.log(this.position.x,building[this.target].position[0].x,this.position.y-50,building[this.target].position[0].y)
             }
         }
 
-        var birth = {
+        var building = {
+            'birth':{
                 img:'images/birth.png',
                 tag:'birth',
                 position:[],
-            }
-        var sun = {
-                img:'images/sun.png',
-                tag:'sun',
-                position:[],
-            }
-        var moon = {
-                img:'images/moon.png',
-                tag:'moon',
-                position:[],
-            }
-        var star = {
-                img:'images/star.png',
+            },
+            'sun':{
+                    img:'images/sun.png',
+                    tag:'sun',
+                    position:[],
+                },
+            'moon':{
+                    img:'images/moon.png',
+                    tag:'moon',
+                    position:[],
+                },
+            'star':{
+                    img:'images/star.png',
+                    tag:'star',
+                    position:[],
+                },
+            'route':{
+                img:'images/route.png',
                 tag:'star',
                 position:[],
-            }
-
+                },
+        }
         var alreadySet = []
         var roadlist = []
         var scene = new Scene()
         scene.setCell()
         
-        scene.setBuild(birth,'easy')
-        scene.setBuild(sun,'easy')
-        scene.setBuild(moon,'easy')
-        scene.setBuild(star,'easy')
-        alreadySet = alreadySet.concat(birth.position,sun.position,star.position,moon.position)   
+        scene.setBuild(building.birth,'easy')
+        scene.setBuild(building.sun,'easy')
+        scene.setBuild(building.moon,'easy')
+        scene.setBuild(building.star,'easy')
+        alreadySet = alreadySet.concat(building.birth.position,building.sun.position,building.star.position,building.moon.position)   
         // console.log(scene.alreadySet) 
         // console.log(alreadySet)
         var paver = new RoadPaver()
@@ -213,39 +195,19 @@
 
         $(function(){
             $('#action').click(function(){
-                // console.log(paver.roadlist)
-                // var temparr = birth.position[0]
-                
-                // for(var i=0;i<paver.roadlist.length;i++){
-                    
-                //     if(isIn(paver.roadlist,))
-                // }
-                // var obj = {x:100,y:200}
-                // console.log(hasLeft(obj))
                 var person1 = new Person()
-                person1.position = JSON.parse(JSON.stringify(birth.position[0]))
-                
-                $('#go').click(function(){
-                    // person1.getRoad()
-                    if(isCross({x:400,y:250})){
-                        console.log('cross')
-                    }else{
-                        console.log('notcross')
-                    }
+                person1.position = JSON.parse(JSON.stringify(building.birth.position[0]))   
+                person1.getTarget()             
+                $('#go').click(function(){               
+                        // console.log(person1.target)                   
+                        // person1.move()
+                        // console.log(person1.road)                   
+                })
+                $('#move').click(function(){
+                    person1.move()
                 })
             })
         })
-
-        function findRight(obj,roadlist){
-            obj.x = obj.x+50
-            if(isIn(roadlist,obj)){
-                return true
-            }else{
-                return false
-            }
-        }
-        
-        // aa()
 	</script>
 	
 </body>

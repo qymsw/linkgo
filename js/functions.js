@@ -76,6 +76,7 @@ function hasUp(obj){
     return false
 }
 
+// Cross
 function isCross(obj){
     if(hasUp(obj)&&hasDown(obj)&&hasRight(obj)&&hasLeft(obj)){
         return true
