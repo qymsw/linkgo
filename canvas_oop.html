@@ -19,6 +19,7 @@
     <script src="js/functions.js"></script>
     <script src="js/roadpaver.js"></script>
     <script src="js/scene.js"></script>
+    <script src="js/person.js"></script>
 </head>
 <body>
     <div class="container">
@@ -31,125 +32,7 @@
 	<!-- <div id="app"><img src="images/birth.png" alt=""></div> -->
 	<script type="text/javascript">
 
-        // 市民
-        function Person(){
-            this.canvas = document.getElementById('canvas')
-			this.ctx = this.canvas.getContext('2d')    
-            this.img = getImg('images/nav.png')
-            this.target = ''           
-            this.position = {}
-            this.road = []
-            this.direct = 'down'
-            this.timer = []
 
-            this.getTarget = function(){
-                var ran = Math.floor(Math.random()*3)
-                var arr = ['sun','moon','star'];
-                this.target = arr[ran]
-            }
-
-            this.getRoad = function(){   
-
-                if(hasDown(this.position) && this.direct == 'down'){
-                    this.position.y = this.position.y + 50  
-                    var newobj = JSON.parse(JSON.stringify(this.position)) 
-                    this.road.push(newobj)  
-                    // if(!isCross(this.position) && hasLeft(this.position)){
-                    if(hasLeft(this.position)){
-                        this.direct = 'left'
-                    }else if(hasRight(this.position)){
-                        this.direct = 'right'
-                    }
-                    // if(isCross(this.position)){
-                    //     var ran = Math.floor(Math.random()*4)
-                    //     var arr = ['down','up','left','rigth'];
-                    //     this.direct = arr[ran]
-                    // }
-                    // console.log('down')
-
-                }else if(hasUp(this.position)  && this.direct == 'up'){
-                    this.position.y = this.position.y - 50 
-                    var newobj = JSON.parse(JSON.stringify(this.position))                
-                    this.road.push(newobj)                 
-                    if(hasRight(this.position)){
-                        this.direct = 'right'
-                    }else if(hasLeft(this.position)){
-                        this.direct = 'left'
-                    }
-                    // console.log('up')
-                }else if(hasLeft(this.position)  && this.direct == 'left'){                    
-                        this.position.x = this.position.x - 50
-                        var newobj = JSON.parse(JSON.stringify(this.position))                
-                        this.road.push(newobj)                 
-                        if(hasUp(this.position)){
-                            this.direct = 'up'
-                        }else if(hasDown(this.position)){
-                            this.direct = 'down'
-                        }
-                        // console.log('left')
-                }else if(hasRight(this.position)  && this.direct == 'right'){                    
-                        this.position.x = this.position.x + 50
-                        var newobj = JSON.parse(JSON.stringify(this.position))                
-                        this.road.push(newobj)  
-                        if(hasDown(this.position)){
-                            this.direct = 'down'
-                        }else if(hasUp(this.position)){
-                            this.direct = 'up'
-                        }                        
-                        // console.log('right')
-                }
-                // if(this.road[this.road.length-1])
-                // console.log(this.road)
-                // console.log(this.position)
-                // console.log(building[this.target].position[0])
-                var targetbuild = building[this.target].position[0]
-                // console.log(targetbuild.x,targetbuild.y,this.position.x,this.position.y)
-
-                if(targetbuild.x == this.road[this.road.length-1].x && targetbuild.y == this.road[this.road.length-1].y-50){
-                    // console.log(this.road)
-                    this.timer.forEach(function(item){
-                        clearInterval(item)                        
-                    })
-                }
-            }
-
-            this.test = function(){
-                this.position.x = this.position.x +50
-                var ex = this.position.x
-                var ey = this.position.y + 50
-                var newposition = {x:ex,y:ey}
-            }
-            this.move = function(){
-                var that = this                
-                var routeImg = getImg(building.route.img)
-                var i = 0 
-                this.timer.push(setInterval(() => {
-                    that.getRoad()
-                    // that.getRoad()
-                    // console.log(that.road[i].x,that.road[i].y)
-                    that.ctx.drawImage(that.img,that.road[i].x,that.road[i].y,48,48)
-                    // // console.log(that.road[i].y)
-                    if(i>=1){
-                        that.ctx.drawImage(routeImg,that.road[i-1].x,that.road[i-1].y,48,48)
-                    }
-                    i++
-                    // console.log(scene.alreadyIn)
-                    // console.log(that.target)
-                    that.arrive()
-                }, 30))
-            }
-
-            this.arrive = function(){
-                var routeImg = getImg(building.route.img)
-                if(this.position.x == building[this.target].position[0].x && this.position.y-50 == building[this.target].position[0].y){
-                    // alert('ok')
-                    setTimeout(() => {
-                         this.ctx.drawImage(routeImg,this.position.x,this.position.y,48,48)                        
-                    }, 1000);
-                }
-                // console.log(this.position.x,building[this.target].position[0].x,this.position.y-50,building[this.target].position[0].y)
-            }
-        }
 
         var building = {
             'birth':{
@@ -183,10 +66,10 @@
         var scene = new Scene()
         scene.setCell()
         
-        scene.setBuild(building.birth,'easy')
-        scene.setBuild(building.sun,'easy')
-        scene.setBuild(building.moon,'easy')
-        scene.setBuild(building.star,'easy')
+        scene.setBuild(building.birth,'normal')
+        scene.setBuild(building.sun,'normal')
+        scene.setBuild(building.moon,'normal')
+        scene.setBuild(building.star,'normal')
         alreadySet = alreadySet.concat(building.birth.position,building.sun.position,building.star.position,building.moon.position)   
         // console.log(scene.alreadySet) 
         // console.log(alreadySet)
@@ -195,16 +78,22 @@
 
         $(function(){
             $('#action').click(function(){
+                var random = Math.floor(Math.random()*2)
                 var person1 = new Person()
+                var person2 = new Person()
                 person1.position = JSON.parse(JSON.stringify(building.birth.position[0]))   
-                person1.getTarget()             
+                person2.position = JSON.parse(JSON.stringify(building.birth.position[1]))   
+                person1.getTarget() 
+                person1.move()  
+                person2.getTarget() 
+                person2.move()            
                 $('#go').click(function(){               
                         // console.log(person1.target)                   
                         // person1.move()
                         // console.log(person1.road)                   
                 })
                 $('#move').click(function(){
-                    person1.move()
+                    
                 })
             })
         })
