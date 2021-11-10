@@ -8,11 +8,27 @@
 </head>
 <body>
     <canvas id="canvas" width="1000" height="500"></canvas>
+
     <script>
-       var arr = {x:0,y:0}
-       console.log(arr)
-       arr.x = arr.x+50
-       console.log(arr)
+        var canvas = document.getElementById('canvas')
+        var ctx = canvas.getContext('2d')
+        var canvas1 = document.getElementById('canvas')
+        var ctx1 = canvas1.getContext('2d')
+
+        ctx.fillRect(0,0,50,50)
+        ctx.fillRect(100,100,50,50)
+        ctx.strokeStyle = '#ddd'
+        ctx.moveTo(0,50);
+        ctx.lineTo(1000,50);
+        ctx.stroke()
+        ctx.moveTo(0,150);
+        ctx.lineTo(1000,150);
+        ctx.stroke()
+        ctx1.strokeStyle = 'red'
+        ctx1.moveTo(0,250);
+        ctx1.lineTo(1000,250);
+        ctx1.stroke()
+
     </script>
 </body>
 </html>
