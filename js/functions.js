@@ -19,6 +19,7 @@ function isIn(a,b){
     return false			
 }
 
+<<<<<<< HEAD
 // 对象比较
 function objCompare(obj1,obj2){
     obj1 = JSON.stringify(obj1)
@@ -31,19 +32,31 @@ function objCompare(obj1,obj2){
 
 // 画图
 function draw(arr,img,alpha=1){
+=======
+// 画图
+function draw(ctx,arr,img,alpha=1){
+>>>>>>> 2271e139baded61a912fa020ed8376b6caf06e9e
     arr.forEach(function(item){    
         ctx.globalAlpha=alpha
         ctx.drawImage(img,item.x,item.y,48,48)              
     })
 }
+<<<<<<< HEAD
 
 // 清除画布
 function clear(arr){            							
+=======
+// 清除画布
+function clear(ctx,arr){            							
+>>>>>>> 2271e139baded61a912fa020ed8376b6caf06e9e
     arr.forEach(function(item,index){
         ctx.clearRect(item.x,item.y,48,48)
     })
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2271e139baded61a912fa020ed8376b6caf06e9e
 // 获取图片
 function getImg(url){
     var img = new Image()
@@ -96,6 +109,7 @@ function isCross(obj){
     if(hasUp(obj)&&hasDown(obj)&&hasRight(obj)&&hasLeft(obj)){
         return true
     }
+<<<<<<< HEAD
 }
 
 function threeCross(obj){
@@ -112,4 +126,19 @@ function threeCross(obj){
         return 'noleft'
     }
     return false 
+=======
+    // if(hasDown(obj)&&hasRight(obj)&&hasLeft(obj)){
+    //     return true
+    // }
+    // if(hasUp(obj)&&hasRight(obj)&&hasLeft(obj)){
+    //     return true
+    // }
+    // if(hasUp(obj)&&hasDown(obj)&&hasLeft(obj)){
+    //     return true
+    // }
+    // if(hasUp(obj)&&hasDown(obj)&&hasRight(obj)){
+    //     return true
+    // }
+    return false
+>>>>>>> 2271e139baded61a912fa020ed8376b6caf06e9e
 }
